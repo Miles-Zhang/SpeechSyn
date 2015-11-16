@@ -1,5 +1,5 @@
 #include <stdio.h>
-//extern void ffilter(double *b,int len_b, double *a, int len_a, double* input,int len, double* output);
+
 extern void lpc(double* input,int len, int N, int stride, double* aut, double* coef, double* pred, double* var);
 /* return the N lpc coefficients of the input signal
 Input:
@@ -14,6 +14,7 @@ Output:
     double* pred: predicted sample points by lpc
 	double error: error
 */
+
 void hamming(int len, double* win){
     int i = 0;
     for (i = 0; i < len; ++i){
