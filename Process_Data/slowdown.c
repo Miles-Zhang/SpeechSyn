@@ -1,6 +1,10 @@
 #include <stdio.h>
+#include <malloc.h>
 #include <string.h>
-#include <cmath.h>
+#include <math.h>
+#ifndef PI
+#define PI 3.141592653
+#endif
 extern void ffilter(double *b,int len_b, double *a, int len_a, double* input,int len, double* output);
 /* filters the data in "input" with the filter described by vectors a and b to create the filtered data "output".
  a[0]*y[n] = b[0]*x[n] + b[1]*x[n-1] + ... + b[len_b-1]*x[n-len_b+1]
@@ -30,7 +34,7 @@ Output:
 	double error: error
 */
 
-extern int findpitch(double *s);
+extern int findpitch(double *s, int len);
 /*find the pitch period of given excitation s*/
 
 void hamming(int len, double* win){
@@ -40,7 +44,7 @@ void hamming(int len, double* win){
     }
 }
 
-void Process_Data(double *input, double *output，double *framebuf, double *excbuf, int FL, int step, int last, int PTlast) {
+void Process_Data(double *input, double *output, double *framebuf, double *excbuf, int FL, int step, int last, int PTlast) {
 /* computes the slowed-down voice
 Input:
   double *input: current frame of one channel
@@ -56,29 +60,30 @@ Output:
     memcpy(fbufpt+FL2,input,8*FL); //copy input to buffer
     int P=10; //number of prediction coefficients
     double //exc[FL], //excitation signal (prediction error)
-      zi_pre[P], //prediction filter status
-      exc_syn[FL2], //synthesized excitation (pulse string）
-      s_syn[FL], //synthesized sound
-      zi_syn[P], //synthesis filter
-      s_w[WL];
+      //zi_pre[P], //prediction filter status
+		*exc_syn, //[FL2], //synthesized excitation (pulse string）
+		//*s_syn, //[FL], //synthesized sound
+      //zi_syn[P], //synthesis filter
+		*s_w, //[WL];
+		*s_syn_v, //[FL2], //synthesized excitation (pulse string）
+		*hw; //[WL]
+	exc_syn=(double *)malloc(sizeof(double)*FL2);
+	s_w=(double *)malloc(sizeof(double)*WL);
+	hw=(double *)malloc(sizeof(double)*WL);    //hamming window 
+	/*
     for (int i = 0; i < P; i++) {
       zi_pre[i]=0;
     }
-    // slow down by half speed
-    double exc_syn_v[FL2], //synthesized excitation (pulse string）
-      s_syn_v[FL2], //synthesized sound
-      zi_v[P];
-
-    //hamming window
-    double hw[WL];
+	*/
     hamming(WL, hw);
-    for (int i = 0; i < WL-; i++) {
+    for (int i = 0; i < WL-1; i++) {
       if (i<FL2-1) s_w[i]=hw[i]*framebuf[i];
       else s_w[i]=hw[i]*input[i-FL2];
     }
-    double *coef[P];
-    double *aut, *pred;
-    double var;
+    double *coef, *aut, *pred, *var;
+	coef=(double *)malloc(sizeof(double)*P);
+	aut=(double *)malloc(sizeof(double)*P);
+	pred=(double *)malloc(sizeof(double)*WL);
     lpc(s_w,FL,P,step, aut, coef, pred, var);
     //compute P coefficients with LPC algorithm
     //coef is the predicted coefficent array
@@ -86,15 +91,15 @@ Output:
     double b=1;
     //[y1,zi_pre]=filter(A,1,s_f,zi_pre); %s is input and e is output, save filter state
     //exc((n-1)*FL+1:n*FL)=y1.';
-    ffilter(coef, P, &b, 1, input, FL, exc); //output is the excitation
+    ffilter(coef, P, &b, 1, input, FL, excbuf+FL2); //output is the excitation
     //note that the coef is "b" here and b=1 is "a"
     double *s_Pitch=fbufpt+WL-222;
     int PT; double G;
-    PT = findpitch(s_Pitch);    % 计算基音周期PT（不要求掌握）
-    G = sqrt(E*PT);           % 计算合成激励的能量G（不要求掌握）
+    PT = findpitch(s_Pitch, FL);    //find pitch period
+    G = sqrt(*var*PT);           //find power
     //the synthesized excitation as below guarantees no intermediate PT value at the conjunction of two frames
     int p=0;
-    if PT<=PTlast p=PTlast-last-1;
+    if (PT<=PTlast) p=PTlast-last-1;
     else p=PT-last-1;
     while (p<FL) {
       exc_syn[p]=G;
@@ -110,5 +115,5 @@ Output:
     [s_syn_v(2*(n-1)*FL+1:2*n*FL),zi_v]=filter(1,A,...
         exc_syn_v(2*(n-1)*FL+1:2*n*FL),zi_v);
     */
-    memcpy(exc_syn_v+FL,exc_syn_v,8*FL);
-    ffilter(&b,1, coef, 1, exc_syn_v, FL2, s_syn_v);
+    memcpy(exc_syn+FL,exc_syn,8*FL);
+    ffilter(&b,1, coef, 1, exc_syn, FL2, output);

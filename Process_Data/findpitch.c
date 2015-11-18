@@ -1,12 +1,13 @@
 #include <stdio.h>
-#include <cmath.h>
+#include <math.h>
+extern void ffilter(double *b,int len_b, double *a, int len_a, double* input,int len, double* output);
 
-int findpitch(double *s) {
+int findpitch(double *s, int len) {
     //[B, A] = butter(5, 700/4000);
-    double A=[1.0000000e+00,-3.2268610e+00,4.3810649e+00,-3.0782333e+00,1.1112175e+00,-1.6406087e-01];
-    double B=[7.2272542e-04,3.6136271e-03,7.2272542e-03,7.2272542e-03,3.6136271e-03,7.2272542e-04];
+	double A[6]={1.0000000e+0, -3.2268610e+00,4.3810649e+00,-3.0782333e+00,1.1112175e+00,-1.6406087e-01};
+	double B[6]={7.2272542e-04,3.6136271e-03,7.2272542e-03,7.2272542e-03,3.6136271e-03,7.2272542e-04};
     //s = filter(B,A,s);
-    ffilter(B,6,A,6,s,FL,s)
+    ffilter(B,6,A,6,s,len,s);
     //R = zeros(143,1);
     double R[143];
     /*
@@ -34,7 +35,7 @@ int findpitch(double *s) {
     double R1=0,R2=0,R3=0,n1=0,n2=0,n3=0;
     int T1=0,T2=0,T3=0;
     for (int i = 79; i < 142; i++) {
-      if R[i]>R1 {
+      if (R[i]>R1) {
         R1=R[i];
         T1=i;
       }
@@ -44,7 +45,7 @@ int findpitch(double *s) {
     }
     R1=R1/(sqrt(n1)+1);
     for (int i = 39; i < 78; i++) {
-      if R[i]>R2 {
+      if (R[i]>R2) {
         R2=R[i];
         T2=i;
       }
@@ -54,7 +55,7 @@ int findpitch(double *s) {
     }
     R2=R2/(sqrt(n2)+1);
     for (int i = 19; i < 38; i++) {
-      if R[i]>R3 {
+      if (R[i]>R3) {
         R3=R[i];
         T3=i;
       }
