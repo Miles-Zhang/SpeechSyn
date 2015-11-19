@@ -67,9 +67,9 @@ volatile short sCodec1836TxRegs[CODEC_1836_REGS_LENGTH] =
 /**************************************************
     DMA RX and TX Ping-Pong Buffer Definitions
 ***************************************************/
-// SPORT0 DMA Receive Double Buffer, ping + pong
+// SPORT0 DMA Receive float Buffer, ping + pong
 short RxBuffer[2*FRAMESIZE + 2*FRAMESIZE];
-// SPORT0 DMA Transmit Double Buffer, ping + pong
+// SPORT0 DMA Transmit float Buffer, ping + pong
 short TxBuffer[2*FRAMESIZE + 2*FRAMESIZE];
 // Ping Pong Buffer Pointers
 short* RxPing = RxBuffer;

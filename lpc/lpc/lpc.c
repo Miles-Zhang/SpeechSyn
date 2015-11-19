@@ -5,7 +5,7 @@
 #endif
 
 /*
- void hamming(int len, double* win){
+ void hamming(int len, float* win){
     int i = 0;
     for (i = 0; i < len; ++i){
         win[len] = 0.54 - 0.46 * cos(2*PI*i/len);        
@@ -13,19 +13,19 @@
 }
 */
 
-void ffilter(double *b,int len_b, double *a, int len_a, double* input,int len, double* output){
+void ffilter(float *b,int len_b, float *a, int len_a, float* input,int len, float* output){
 /* filters the data in "input" with the filter described by vectors a and b to create the filtered data "output".
  a[0]*y[n] = b[0]*x[n] + b[1]*x[n-1] + ... + b[len_b-1]*x[n-len_b+1]
                        - a[1]*y[n-1] - ... - a[len_a-1]*y[n-len_a+1]
  Input:
-    double* b: filter coefficients
+    float* b: filter coefficients
     int len_b: length of coefficient b
-    double* a: filter coefficients
+    float* a: filter coefficients
     int len_a: length of coefficient a
-    double* input: input sample points
+    float* input: input sample points
     int len: length of input sample points
  Output:
-     double* output: output sample points
+     float* output: output sample points
 */
     int i, j, k;
     //normalizes the filter coefficients by a[0]
@@ -48,21 +48,21 @@ void ffilter(double *b,int len_b, double *a, int len_a, double* input,int len, d
     }
 }
 
-void lpc(double* input,int len, int N, int stride, double* aut, double* coef, double* pred, double *var){
+void lpc(float* input,int len, int N, int stride, float* aut, float* coef, float* pred, float *var){
 /* return the N lpc coefficients of the input signal
 Input:
- 	double* input: input samples points
+ 	float* input: input samples points
  	int len: length of sample points
  	int N: length of coefficients
  	int stride: stride (two-channel)
 Middle:
- 	double* aut: autocorrelation
+ 	float* aut: autocorrelation
 Output:
-	double* coef: lpc coefficients
-    double* pred: predicted sample points by lpc
-	double error: error
+	float* coef: lpc coefficients
+    float* pred: predicted sample points by lpc
+	float error: error
 */
-    double sum;
+    float sum;
     int i,j;
     int k,n;
     for (i = 0; i <= N; ++i) { //autocorrelation
@@ -74,16 +74,16 @@ Output:
     }
     // calculate lpc coefficients by Levinson-Durbin recursion
     coef[0] = 1;
-    double Ek = aut[0];
+    float Ek = aut[0];
     for (k = 0; k < N; ++k){
-        double lambda = 0;
+        float lambda = 0;
         for (j = 0; j <= k; ++j){
             lambda -= coef[j] * aut[k+1-j];
         }
         lambda /= Ek;
         // update coef[0,..,k]
         for (n = 0; n <= (k+1)/2; ++n){
-            double temp = coef[k+1-n] + lambda * coef[n];
+            float temp = coef[k+1-n] + lambda * coef[n];
             coef[n] = coef[n] + lambda * coef[k+1-n];
             coef[k+1-n] = temp;
         }

@@ -5,10 +5,7 @@
 
 //extern fir_state_fr16 s_left;
 //extern fir_state_fr16 s_right;
-extern short framebuf_left[];
-extern short framebuf_right[];
-extern short excbuf_left[];
-extern short excbuf_right[];
+
 
 //--------------------------------------------------------------------------//
 // Function:	Process_Data()												//
@@ -23,13 +20,17 @@ void Process_Data(void)
 	// Ping-Pong Flag
     static int ping = 0;
 
-	// Buffer Pointers
-		static int fb_l=0;
-		static int fb_r=0;
-		static int eb_l=0;
-		static int eb_r=0;
-		static int last_l=2*FRAMESIZE;
-		static int last_r=2*FRAMESIZE;
+	// Buffers
+		bufferedframe f_l[3], f_r[3];
+		bufferedframe e_l[3], e_r[3];
+		for (int i = 0; i < 3; i++) {
+			f_l[i%3]->nextframe=&f_l[(i+1)%3];
+			f_r[i%3]->nextframe=&f_r[(i+1)%3];
+			e_l[i%3]->nextframe=&e_l[(i+1)%3];
+			e_r[i%3]->nextframe=&e_r[(i+1)%3];
+		}
+		static int last_l=0;
+		static int last_r=0;
 		static int PTlast_l=0;
 		static int PTlast_r=0;
 
@@ -38,7 +39,7 @@ void Process_Data(void)
 
 
         // left and right channels processing, ping slot
-        slowdown(RxPing+0, TxPing+0, framebuf_left+fb_l, excbuf_left+eb_l, FRAMESIZE,2,last_l,PTlast_l);
+        slowdown(RxPing+0, TxPing+0, &f_l[2], &e_l[2], FRAMESIZE,2,last_l,PTlast_l);
         slowdown(RxPing+1, TxPing+1, framebuf_right+fb_r, excbuf_right+eb_r, FRAMESIZE,2,last_r,PTlast_r);
 
 //        memcpy(TxPing, RxPing, 2*FRAMESIZE*sizeof(RxPing[0]));

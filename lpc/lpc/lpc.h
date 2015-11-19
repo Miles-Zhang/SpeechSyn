@@ -9,7 +9,7 @@
 #ifndef lpc_h
 #define lpc_h
 
-void ffilter(double *b,int len_b, double *a, int len_a, double* input,int len, double* output);
-void lpc(double* input,int len, int N, int stride, double* aut, double* coef, double* pred, double* var);
+void ffilter(float *b,int len_b, float *a, int len_a, float* input,int len, float* output);
+void lpc(float* input,int len, int N, int stride, float* aut, float* coef, float* pred, float* var);
 
 #endif /* lpc_h */
