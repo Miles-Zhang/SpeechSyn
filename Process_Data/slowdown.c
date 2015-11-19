@@ -45,7 +45,7 @@ void hamming(int len, double* win){
     }
 }
 
-void Process_Data(double *input, double *output, double *framebuf, double *excbuf, int FL, int step, int last, int PTlast) {
+void slowdown(double *input, double *output, double *framebuf, double *excbuf, int FL, int step, int last, int PTlast) {
 /* computes the slowed-down voice
 Input:
   double *input: current frame of one channel
@@ -70,7 +70,7 @@ Output:
 		*hw; //[WL]
 	exc_syn=(double *)malloc(sizeof(double)*FL2);
 	s_w=(double *)malloc(sizeof(double)*WL);
-	hw=(double *)malloc(sizeof(double)*WL);    //hamming window 
+	hw=(double *)malloc(sizeof(double)*WL);    //hamming window
 	/*
     for (int i = 0; i < P; i++) {
       zi_pre[i]=0;

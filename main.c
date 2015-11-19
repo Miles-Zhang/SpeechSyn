@@ -29,7 +29,7 @@
 #include "sysreg.h"
 #include "ccblkfn.h"
 
-// FIR stuffs 
+// FIR stuffs
 #include "mds_def.h"
 #include "filter.h"
 #include "fir_coeff.h"
@@ -48,7 +48,7 @@
 //--------------------------------------------------------------------------//
 
 volatile short sCodec1836TxRegs[CODEC_1836_REGS_LENGTH] =
-{									
+{
 					DAC_CONTROL_1	| 0x010,
 					DAC_CONTROL_2	| 0x000,
 					DAC_VOLUME_0	| 0x3ff,
@@ -60,12 +60,12 @@ volatile short sCodec1836TxRegs[CODEC_1836_REGS_LENGTH] =
 					ADC_CONTROL_1	| 0x000,
 					ADC_CONTROL_2	| 0x020,
 					ADC_CONTROL_3	| 0x000
-					
+
 };
 
 
 /**************************************************
-    DMA RX and TX Ping-Pong Buffer Definitions  
+    DMA RX and TX Ping-Pong Buffer Definitions
 ***************************************************/
 // SPORT0 DMA Receive Double Buffer, ping + pong
 short RxBuffer[2*FRAMESIZE + 2*FRAMESIZE];
@@ -81,6 +81,7 @@ short* TxPong = TxBuffer + 2*FRAMESIZE;
 /*************************************************
     FIR  Definitions
 **************************************************/
+/*
 #define DELAY_SIZE       BASE_TAPLENGTH
 
 // delay buffers for left and right channels
@@ -90,9 +91,13 @@ fract16 delay_right[DELAY_SIZE];
 // two instansces for left and right channel FIRs
 fir_state_fr16 s_left;
 fir_state_fr16 s_right;
-
+*/
 short RxBUF[80*FRAMESIZE];
 short TxBUF[80*FRAMESIZE];
+short framebuf_left[3*FRAMESIZE];
+short framebuf_right[3*FRAMESIZE];
+short excbuf_left[3*FRAMESIZE];
+short excbuf_right[3*FRAMESIZE];
 
 //--------------------------------------------------------------------------//
 // Function:	main														//
@@ -115,8 +120,8 @@ void main(void)
 	Enable_DMA_Sport0();
 
 	// FIR initializations
-    fir_init(s_left, h, delay_left, BASE_TAPLENGTH);	
-    fir_init(s_right, h, delay_right, BASE_TAPLENGTH);	
-	
+    fir_init(s_left, h, delay_left, BASE_TAPLENGTH);
+    fir_init(s_right, h, delay_right, BASE_TAPLENGTH);
+
 	while(1);
 }
